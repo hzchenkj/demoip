@@ -1,0 +1,27 @@
+stages:
+- name: Build
+  steps:
+  - runScriptConfig:
+      image: hub.yingyingwork.com/base/maven-3:jdk8-yy
+      shellScript: mvn clean package -Dmaven.test.skip=true
+- name: Publish
+  steps:
+  - publishImageConfig:
+      dockerfilePath: ./Dockerfile
+      buildContext: .
+      tag: ckj/demoip:${CICD_EXECUTION_SEQUENCE}
+      pushRemote: true
+      registry: hub.yingyingwork.com
+    env:
+      PLUGIN_DEBUG: "true"
+      PLUGIN_INSECURE: "true"
+- name: Deploy
+  steps:
+  - applyYamlConfig:
+      path: ./deployment.yaml
+notification:
+  recipients:
+  - recipient: chenkejun@yingyinglicai.com
+    notifier: c-4mbw2:n-8j4px
+  condition:
+  - Success
